@@ -1,6 +1,6 @@
 import express from "express";
 import "dotenv/config";
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import cors from 'cors'
 
 const app = express();
@@ -9,9 +9,7 @@ const PORT = 5000;
 app.use(cors())
 app.use(express.json())
 
-const client = new MongoClient(
-  "mongodb://studio-space:2uia6volq85XitUJ@ac-fp5z2sz-shard-00-00.yfbjwpb.mongodb.net:27017,ac-fp5z2sz-shard-00-01.yfbjwpb.mongodb.net:27017,ac-fp5z2sz-shard-00-02.yfbjwpb.mongodb.net:27017/?ssl=true&replicaSet=atlas-fg8pkp-shard-0&authSource=admin",
-);
+const client = new MongoClient(process.env.MONGODB_URL);
 
 export async function connectToMongoDB() {
   try {
@@ -40,6 +38,19 @@ app.get('/studio-list', async(req, res)=>{
     const result = await studioCollectins.find().toArray();
     res.send(result)
 })
+
+app.get('/studio/:id', async(req, res)=>{
+    const {id} = req.params;
+    const result = await studioCollectins.findOne({_id: id});
+    res.send(result);
+})
+
+app.get('/feature-studio', async(req, res)=>{
+    const result = await studioCollectins.find().limit(6).toArray();
+    res.send(result)
+})
+
+
 
 app.get("/", (req, res) => {
   res.send({ message: "Server is running fine!" });
