@@ -28,7 +28,13 @@ const db = mongoClient.db("studio-space")
 const studioCollectins = db.collection("studios")
 
 
+app.post("/add-studio", async(req, res)=>{
+    const data = req.body;
 
+    const result = await studioCollectins.insertOne(data);
+
+    res.send(result)
+})
 
 
 app.get("/", (req, res) => {
