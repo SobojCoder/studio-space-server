@@ -27,13 +27,32 @@ const studioCollectins = db.collection("studios")
 const bookingCollections = db.collection("bookings")
 
 
-app.post("/add-studio", async(req, res)=>{
-    const data = req.body;
 
-    const result = await studioCollectins.insertOne(data);
 
-    res.send(result)
+app.post("/add-studio", async (req, res) => {
+  const data = req.body;
+
+  const result = await studioCollectins.insertOne(data);
+
+  res.send(result);
+});
+
+app.get("/my-listing/:email", async (req, res) => {
+  const { email } = req.params;
+
+  const result = await studioCollectins
+    .find({ ownerEmail: email })
+    .toArray();
+
+  res.send(result);
+});
+
+app.delete("/my-listing/:id", async(req, res)=>{
+  const {id} = req.params;
+  const result = await studioCollectins.deleteOne({_id: new ObjectId(id)})
+  res.send(result)
 })
+
 
 app.get('/studio-list', async(req, res)=>{
     const result = await studioCollectins.find().toArray();
@@ -42,7 +61,7 @@ app.get('/studio-list', async(req, res)=>{
 
 app.get('/studio/:id', async(req, res)=>{
     const {id} = req.params;
-    const result = await studioCollectins.findOne({_id: id});
+    const result = await studioCollectins.findOne({_id: new ObjectId(id)});
     res.send(result);
 })
 
@@ -68,6 +87,16 @@ app.delete("/my-bookings/:studioId", async(req, res)=>{
   const result = await bookingCollections.deleteOne({studioId: studioId})
   res.send(result)
 })
+
+app.get("/category/:categoryName", async (req, res) => {
+  const categoryName = req.params.categoryName;
+
+  const result = await studioCollectins
+    .find({ category: categoryName })
+    .toArray();
+
+  res.send(result);
+});
 
 app.get("/", (req, res) => {
   res.send({ message: "Server is running fine!" });
