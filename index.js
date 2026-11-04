@@ -63,6 +63,11 @@ app.get("/my-bookings/:email", async(req, res)=>{
   res.send(result)
 })
 
+app.delete("/my-bookings/:id", async(req, res)=>{
+  const {id} = req.params;
+  const result = await bookingCollections.deleteOne({_id: ObjectId(id)})
+  res.send(result)
+})
 
 app.get("/", (req, res) => {
   res.send({ message: "Server is running fine!" });
