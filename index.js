@@ -57,7 +57,11 @@ app.post('/bookings', async(req, res)=>{
   res.send(result)
 })
 
-
+app.get("/my-bookings/:email", async(req, res)=>{
+  const {email} = req.params;
+  const result = await bookingCollections.find({userEmail: email}).toArray()
+  res.send(result)
+})
 
 
 app.get("/", (req, res) => {
