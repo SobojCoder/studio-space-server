@@ -45,7 +45,7 @@ const verifyToken = async(req, res, next)=>{
     return res.status(401).send({msg:"Unauthorize"})
   }
 
-  const JWKS = createRemoteJWKSet(new URL('http://localhost:3000/api/auth/jwks'))
+  const JWKS = createRemoteJWKSet(new URL(`${process.env.CLIENT_URL}/api/auth/jwks`))
 
   try{
     const {payload} = await jwtVerify(token, JWKS)
@@ -83,26 +83,47 @@ app.delete("/my-listing/:id",verifyToken, async(req, res)=>{
   res.send(result)
 })
 
+app.patch('/my-listing/:id',verifyToken, async(req, res)=>{
 
-app.get('/studio-list',verifyToken, async(req, res)=>{
+    const {id} = req.params;
+    const updatedData = req.body;
+    const result = await studioCollectins.updateOne(
+        {_id: new ObjectId(id)},
+        {$set: updatedData}
+    )
+    res.json(result)
+})
+
+
+app.get('/studio-list', async(req, res)=>{
     const result = await studioCollectins.find().toArray();
     res.send(result)
 })
 
-app.get('/studio/:id',verifyToken, async(req, res)=>{
+app.get('/studio/:id', async(req, res)=>{
     const {id} = req.params;
     const result = await studioCollectins.findOne({_id: new ObjectId(id)});
     res.send(result);
 })
 
-app.get('/feature-studio',verifyToken, async(req, res)=>{
+app.get('/feature-studio', async(req, res)=>{
     const result = await studioCollectins.find().sort({rating: - 1}).limit(6).toArray();
     res.send(result)
 })
 
 app.post('/bookings',verifyToken, async(req, res)=>{
-  const data = req.body;
-  const result = await bookingCollections.insertOne(data)
+  const bookinData = req.body;
+  const {studioId, userEmail} = bookinData;
+  const existingBooking = await bookingCollections.findOne({
+    studioId: studioId,
+    userEmail: userEmail
+  })
+
+  if(existingBooking){
+    return res.status(409).send({
+      massage:"You have alredy booking this studio!"})
+  }
+  const result = await bookingCollections.insertOne(bookinData)
   res.send(result)
 })
 
@@ -127,3 +148,6 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running in ${PORT}`);
 });
+
+
+export default app
