@@ -113,16 +113,18 @@ app.get('/feature-studio', async(req, res)=>{
 
 app.post('/bookings',verifyToken, async(req, res)=>{
   const bookinData = req.body;
-  const {studioId, userEmail} = bookinData;
+  const {studioId, bookingDate, startingTime} = bookinData;
   const existingBooking = await bookingCollections.findOne({
     studioId: studioId,
-    userEmail: userEmail
+    bookingDate: bookingDate,
+    startingTime:startingTime
   })
 
   if(existingBooking){
     return res.status(409).send({
-      massage:"You have alredy booking this studio!"})
-  }
+      message:"This studio allredy booked!"})
+  } 
+
   const result = await bookingCollections.insertOne(bookinData)
   res.send(result)
 })
